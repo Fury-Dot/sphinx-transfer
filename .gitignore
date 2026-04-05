@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════
+#  SecureTransfer  —  .gitignore
+# ═══════════════════════════════════════════════
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.o
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+asm/lucy/
+.venv/
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# App runtime / temp
+.transfer/
+*.enc
+*.dec
+*.tmp.enc
+test_recv_dir/
+test_file.bin
+
+# ASM build artifacts (keep source, ignore compiled)
+asm/*.o
+asm/*.so
+asm/.sec/
+
+# PyInstaller
+*.spec
