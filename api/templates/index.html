@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureTransfer — AES-CTR File Encryption</title>
+    <meta name="description" content="Encrypt and decrypt files using AES-CTR with PBKDF2-HMAC-SHA256 key derivation. Secure, fast, browser-based.">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────── -->
+<header class="header">
+    <h1>◈ SPHINX SECURE TRANSFER</h1>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <span id="asm-badge" class="badge" style="background: var(--border); color: var(--dim);">PYTHON FALLBACK</span>
+        <span class="badge">AES-CTR · PBKDF2 · HMAC-SHA256</span>
+    </div>
+</header>
+
+<!-- ── Tabs ─────────────────────────────────────── -->
+<nav class="tabs">
+    <div class="tab active" data-tab="encrypt" id="tab-encrypt">01 ENCRYPT</div>
+    <div class="tab" data-tab="decrypt" id="tab-decrypt">02 DECRYPT</div>
+    <div class="tab" data-tab="bench" id="tab-bench">03 BENCHMARKS</div>
+    <div class="tab" data-tab="about" id="tab-about">04 ABOUT</div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────── -->
+<main class="main">
+
+    <!-- ─── Encrypt Panel ─────────────────────── -->
+    <div class="panel active" id="panel-encrypt">
+        <h2 class="panel-title">ENCRYPT FILE</h2>
+        <p class="panel-sub">AES-CTR · PBKDF2-HMAC-SHA256 · HMAC Integrity Tag</p>
+
+        <div class="section-title">INPUT FILE</div>
+        <div class="dropzone" id="dz-encrypt">
+            <div class="icon">◈</div>
+            <div class="label">Drop file here or click to browse</div>
+            <div class="filename" id="enc-filename"></div>
+            <div class="filesize" id="enc-filesize"></div>
+            <input type="file" id="enc-file-input" hidden>
+        </div>
+
+        <div class="section-title">PASSWORD</div>
+        <div class="input-group">
+            <label>PASSWORD</label>
+            <div class="input-row">
+                <input type="password" id="enc-pw" placeholder="Enter encryption password">
+                <button class="btn-toggle" id="enc-pw-toggle">SHOW</button>
+            </div>
+            <div class="strength-bar"><div class="fill" id="enc-strength-fill"></div></div>
+            <div class="strength-label" id="enc-strength-label">—</div>
+        </div>
+        <div class="input-group confirm-group" id="enc-confirm-group">
+            <label>CONFIRM PASSWORD</label>
+            <div class="input-row">
+                <input type="password" id="enc-pw2" placeholder="Confirm password">
+            </div>
+        </div>
+
+        <div class="progress-container" id="enc-progress">
+            <div class="progress-bar"><div class="fill" id="enc-progress-fill"></div></div>
+            <div class="progress-text" id="enc-progress-text">Processing…</div>
+        </div>
+
+        <button class="btn-action" id="btn-encrypt" disabled>◈  ENCRYPT FILE</button>
+
+        <div class="section-title" style="margin-top: 28px;">LOG</div>
+        <div class="log-box" id="enc-log"></div>
+    </div>
+
+    <!-- ─── Decrypt Panel ─────────────────────── -->
+    <div class="panel" id="panel-decrypt">
+        <h2 class="panel-title">DECRYPT FILE</h2>
+        <p class="panel-sub">Extract Salt/Nonce · Verify HMAC · AES-CTR Decrypt</p>
+
+        <div class="section-title">ENCRYPTED FILE</div>
+        <div class="dropzone" id="dz-decrypt">
+            <div class="icon">◈</div>
+            <div class="label">Drop .enc file here or click to browse</div>
+            <div class="filename" id="dec-filename"></div>
+            <div class="filesize" id="dec-filesize"></div>
+            <input type="file" id="dec-file-input" hidden>
+        </div>
+
+        <div class="section-title">PASSWORD</div>
+        <div class="input-group">
+            <label>PASSWORD</label>
+            <div class="input-row">
+                <input type="password" id="dec-pw" placeholder="Enter decryption password">
+                <button class="btn-toggle" id="dec-pw-toggle">SHOW</button>
+            </div>
+        </div>
+
+        <div class="progress-container" id="dec-progress">
+            <div class="progress-bar"><div class="fill" id="dec-progress-fill"></div></div>
+            <div class="progress-text" id="dec-progress-text">Processing…</div>
+        </div>
+
+        <button class="btn-action" id="btn-decrypt" disabled>◈  DECRYPT FILE</button>
+
+        <div class="section-title" style="margin-top: 28px;">LOG</div>
+        <div class="log-box" id="dec-log"></div>
+    </div>
+
+    <!-- ─── Benchmarks Panel ──────────────────── -->
+    <div class="panel" id="panel-bench">
+        <h2 class="panel-title">PERFORMANCE BENCHMARKS</h2>
+        <p class="panel-sub">Test C-Acceleration vs Python Fallback Hardware</p>
+
+        <div class="info-box">
+            <p>Select a benchmark type to measure the speed of the Render server instance. Note: This tests the <strong>server's CPU</strong>, not your browser.</p>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-toggle" onclick="runBenchmark('perf', this)">TEST FILE SIZES</button>
+            <button class="btn-toggle" onclick="runBenchmark('iters', this)">TEST ITERATIONS</button>
+            <button class="btn-toggle" onclick="runBenchmark('keysize', this)">TEST KEY SIZES</button>
+        </div>
+
+        <div id="bench-results" style="display: none;">
+            <div class="section-title" id="bench-title">RESULTS</div>
+            <div class="log-box active" style="max-height: none;" id="bench-log"></div>
+        </div>
+    </div>
+
+    <!-- ─── About Panel ───────────────────────── -->
+    <div class="panel" id="panel-about">
+        <h2 class="panel-title">ABOUT</h2>
+        <p class="panel-sub">How SecureTransfer works</p>
+
+        <div class="info-box">
+            <p><strong>Encryption Process:</strong></p>
+            <p>1. A 16-byte random salt is generated</p>
+            <p>2. PBKDF2-HMAC-SHA256 derives the AES key (100,000 iterations)</p>
+            <p>3. AES-CTR encrypts the file with a random 16-byte nonce</p>
+            <p>4. HMAC-SHA256 creates an integrity tag over Salt + Nonce + Ciphertext</p>
+            <p>5. Output: [ Salt(16) | Nonce(16) | Ciphertext | HMAC(32) ]</p>
+        </div>
+
+        <div class="info-box">
+            <p><strong>Decryption Process:</strong></p>
+            <p>1. Extract Salt and Nonce from the bundle header</p>
+            <p>2. Derive the AES key using PBKDF2 with the same password</p>
+            <p>3. Verify HMAC integrity tag — reject if mismatch</p>
+            <p>4. AES-CTR decrypt the ciphertext to recover the original file</p>
+        </div>
+
+        <div class="info-box">
+            <p><strong>Security Notes:</strong></p>
+            <p>• Your password never leaves the server in plaintext</p>
+            <p>• Files are processed in memory and immediately deleted</p>
+            <p>• HMAC verification ensures tamper detection</p>
+            <p>• 100,000 PBKDF2 iterations protect against brute-force</p>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    SPHINX SECURE TRANSFER · AES-CTR + PBKDF2-HMAC-SHA256 · 2026
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+//  SecureTransfer Web — Frontend Logic
+// ═══════════════════════════════════════════════
+
+(() => {
+    // ── Initial Health Check ─────────────────────
+    fetch('/api/health')
+        .then(r => r.json())
+        .then(data => {
+            const badge = document.getElementById('asm-badge');
+            if (data.asm) {
+                badge.textContent = 'C-ACCELERATED ACTIVE';
+                badge.style.background = '#2b2b2b';
+                badge.style.color = '#fff';
+            } else {
+                badge.textContent = 'PYTHON FALLBACK';
+            }
+        });
+
+    // ── Tab switching ────────────────────────────
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ── File state ───────────────────────────────
+    let encFile = null;
+    let decFile = null;
+
+    // ── Dropzone logic ───────────────────────────
+    function setupDropzone(dzId, inputId, fnId, fsId, onFile) {
+        const dz = document.getElementById(dzId);
+        const input = document.getElementById(inputId);
+        const fnEl = document.getElementById(fnId);
+        const fsEl = document.getElementById(fsId);
+
+        dz.addEventListener('click', () => input.click());
+
+        dz.addEventListener('dragover', e => {
+            e.preventDefault();
+            dz.classList.add('dragover');
+        });
+        dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault();
+            dz.classList.remove('dragover');
+            if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+        });
+        input.addEventListener('change', () => {
+            if (input.files.length) setFile(input.files[0]);
+        });
+
+        function setFile(f) {
+            fnEl.textContent = f.name;
+            fsEl.textContent = formatSize(f.size);
+            onFile(f);
+        }
+    }
+
+    setupDropzone('dz-encrypt', 'enc-file-input', 'enc-filename', 'enc-filesize', f => {
+        encFile = f;
+        updateEncryptBtn();
+    });
+    setupDropzone('dz-decrypt', 'dec-file-input', 'dec-filename', 'dec-filesize', f => {
+        decFile = f;
+        updateDecryptBtn();
+    });
+
+    // ── Password visibility toggle ───────────────
+    function setupToggle(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const inp = document.getElementById(inputId);
+        btn.addEventListener('click', () => {
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            btn.textContent = show ? 'HIDE' : 'SHOW';
+        });
+    }
+    setupToggle('enc-pw-toggle', 'enc-pw');
+    setupToggle('dec-pw-toggle', 'dec-pw');
+
+    // ── Password strength meter ──────────────────
+    const encPw = document.getElementById('enc-pw');
+    const encPw2 = document.getElementById('enc-pw2');
+    const strengthFill = document.getElementById('enc-strength-fill');
+    const strengthLabel = document.getElementById('enc-strength-label');
+    const confirmGroup = document.getElementById('enc-confirm-group');
+
+    encPw.addEventListener('input', () => {
+        const pw = encPw.value;
+        const score = [
+            pw.length >= 8,
+            pw.length >= 14,
+            /[A-Z]/.test(pw),
+            /[0-9]/.test(pw),
+            /[!@#$%^&*()]/.test(pw)
+        ].filter(Boolean).length;
+
+        const levels = [
+            ['VERY WEAK', '16%', '#999'],
+            ['WEAK',      '32%', '#888'],
+            ['FAIR',      '50%', '#666'],
+            ['GOOD',      '66%', '#444'],
+            ['STRONG',    '83%', '#222'],
+            ['EXCELLENT', '100%','#000']
+        ];
+
+        const [label, width, color] = levels[score];
+        strengthFill.style.width = pw ? width : '0%';
+        strengthFill.style.background = color;
+        strengthLabel.textContent = pw ? label : '—';
+        strengthLabel.style.color = color;
+
+        // Show confirm group when password exists
+        if (pw.length > 0) {
+            confirmGroup.classList.add('show');
+        } else {
+            confirmGroup.classList.remove('show');
+        }
+        updateEncryptBtn();
+    });
+
+    encPw2.addEventListener('input', updateEncryptBtn);
+
+    function updateEncryptBtn() {
+        const btn = document.getElementById('btn-encrypt');
+        btn.disabled = !(encFile && encPw.value && encPw.value === encPw2.value);
+    }
+
+    const decPwInput = document.getElementById('dec-pw');
+    decPwInput.addEventListener('input', updateDecryptBtn);
+    function updateDecryptBtn() {
+        const btn = document.getElementById('btn-decrypt');
+        btn.disabled = !(decFile && decPwInput.value);
+    }
+
+    // ── Logging ──────────────────────────────────
+    function log(boxId, msg, cls = '') {
+        const box = document.getElementById(boxId);
+        box.classList.add('active');
+        const div = document.createElement('div');
+        div.className = 'log-line' + (cls ? ' ' + cls : '');
+        div.textContent = msg;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function clearLog(boxId) {
+        const box = document.getElementById(boxId);
+        box.innerHTML = '';
+    }
+
+    function showProgress(id, show) {
+        document.getElementById(id).classList.toggle('active', show);
+    }
+
+    function setProgress(fillId, textId, pct, msg) {
+        document.getElementById(fillId).style.width = pct + '%';
+        document.getElementById(textId).textContent = msg;
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    // ── Encrypt Action ───────────────────────────
+    document.getElementById('btn-encrypt').addEventListener('click', async () => {
+        if (!encFile) return;
+        const pw = encPw.value;
+        const btn = document.getElementById('btn-encrypt');
+
+        clearLog('enc-log');
+        btn.disabled = true;
+        btn.textContent = '⟳  ENCRYPTING…';
+        btn.classList.add('processing');
+        showProgress('enc-progress', true);
+        setProgress('enc-progress-fill', 'enc-progress-text', 10, 'Uploading file…');
+
+        log('enc-log', 'Source : ' + encFile.name);
+        log('enc-log', 'Size   : ' + formatSize(encFile.size));
+        log('enc-log', '▸ Uploading to server…', 'info');
+
+        const form = new FormData();
+        form.append('file', encFile);
+        form.append('password', pw);
+
+        try {
+            setProgress('enc-progress-fill', 'enc-progress-text', 40, 'Encrypting (PBKDF2 + AES-CTR + HMAC)…');
+            log('enc-log', '▸ Streaming encryption (PBKDF2 + AES-CTR + HMAC)…', 'info');
+
+            const res = await fetch('/api/encrypt', { method: 'POST', body: form });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Encryption failed');
+            }
+
+            setProgress('enc-progress-fill', 'enc-progress-text', 90, 'Downloading encrypted file…');
+
+            const blob = await res.blob();
+            const pbkdf2 = res.headers.get('X-PBKDF2-Ms') || '?';
+            const aes = res.headers.get('X-AES-Ms') || '?';
+            const hmacMs = res.headers.get('X-HMAC') || '?';
+            const origSize = res.headers.get('X-Original-Size') || '?';
+            const encSize = res.headers.get('X-Encrypted-Size') || '?';
+
+            // Trigger download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = encFile.name + '.enc';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            setProgress('enc-progress-fill', 'enc-progress-text', 100, 'Complete');
+            log('enc-log', '✔ ENCRYPTION COMPLETE', 'success');
+            log('enc-log', '  PBKDF2  : ' + pbkdf2 + ' ms');
+            log('enc-log', '  AES-CTR : ' + aes + ' ms');
+            log('enc-log', '  HMAC    : ' + hmacMs);
+            log('enc-log', '  Output  : ' + formatSize(parseInt(encSize)) + ' → ' + encFile.name + '.enc', 'success');
+
+        } catch (e) {
+            setProgress('enc-progress-fill', 'enc-progress-text', 0, 'Failed');
+            log('enc-log', '✗ ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '◈  ENCRYPT FILE';
+            btn.classList.remove('processing');
+            updateEncryptBtn();
+        }
+    });
+
+    // ── Decrypt Action ───────────────────────────
+    document.getElementById('btn-decrypt').addEventListener('click', async () => {
+        if (!decFile) return;
+        const pw = decPwInput.value;
+        const btn = document.getElementById('btn-decrypt');
+
+        clearLog('dec-log');
+        btn.disabled = true;
+        btn.textContent = '⟳  DECRYPTING…';
+        btn.classList.add('processing');
+        showProgress('dec-progress', true);
+        setProgress('dec-progress-fill', 'dec-progress-text', 10, 'Uploading encrypted file…');
+
+        log('dec-log', 'Bundle : ' + formatSize(decFile.size));
+        log('dec-log', '▸ Uploading to server…', 'info');
+
+        const form = new FormData();
+        form.append('file', decFile);
+        form.append('password', pw);
+
+        try {
+            setProgress('dec-progress-fill', 'dec-progress-text', 40, 'Decrypting (HMAC Verify + AES-CTR)…');
+            log('dec-log', '▸ Streaming decryption (HMAC Verify + AES-CTR)…', 'info');
+
+            const res = await fetch('/api/decrypt', { method: 'POST', body: form });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Decryption failed');
+            }
+
+            setProgress('dec-progress-fill', 'dec-progress-text', 90, 'Downloading decrypted file…');
+
+            const blob = await res.blob();
+            const pbkdf2 = res.headers.get('X-PBKDF2-Ms') || '?';
+            const aes = res.headers.get('X-AES-Ms') || '?';
+            const hmacMs = res.headers.get('X-HMAC') || '?';
+
+            // Original filename
+            let outName = decFile.name;
+            if (outName.endsWith('.enc')) outName = outName.slice(0, -4);
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = outName;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            setProgress('dec-progress-fill', 'dec-progress-text', 100, 'Complete');
+            log('dec-log', '✔ DECRYPTION COMPLETE', 'success');
+            log('dec-log', '  PBKDF2  : ' + pbkdf2 + ' ms');
+            log('dec-log', '  AES-CTR : ' + aes + ' ms');
+            log('dec-log', '  HMAC    : ' + hmacMs);
+            log('dec-log', '  ✔ HMAC verified — integrity confirmed', 'success');
+            log('dec-log', '  Saved   : ' + outName, 'success');
+
+        } catch (e) {
+            setProgress('dec-progress-fill', 'dec-progress-text', 0, 'Failed');
+            log('dec-log', '✗ ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '◈  DECRYPT FILE';
+            btn.classList.remove('processing');
+            updateDecryptBtn();
+        }
+    });
+
+    // ── Benchmark Action ─────────────────────────
+    window.runBenchmark = async (type, btn) => {
+        const logBox = document.getElementById('bench-log');
+        const resDiv = document.getElementById('bench-results');
+        const origText = btn.textContent;
+        
+        btn.disabled = true;
+        btn.textContent = 'RUNNING…';
+        resDiv.style.display = 'block';
+        logBox.innerHTML = '';
+        
+        const titles = {
+            'perf': 'BENCHMARK: FILE SIZES (1MB - 20MB)',
+            'iters': 'BENCHMARK: PBKDF2 ITERATIONS',
+            'keysize': 'BENCHMARK: AES KEY SIZES'
+        };
+        document.getElementById('bench-title').textContent = titles[type];
+
+        try {
+            log('bench-log', '▸ Running ' + type + ' benchmarks on server...', 'info');
+            
+            const res = await fetch('/api/benchmark', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type })
+            });
+            
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            log('bench-log', '✔ Test complete (ASM: ' + (data.asm_active ? 'ENABLED' : 'DISABLED') + ')', 'success');
+            log('bench-log', '─'.repeat(40));
+            log('bench-log', 'LABEL            | PBKDF2    | AES-CTR   | HMAC', 'info');
+            log('bench-log', '─'.repeat(40));
+
+            data.results.forEach(r => {
+                const line = r.label.padEnd(16) + ' | ' + 
+                             r.pbkdf2_ms.toString().padStart(7) + 'ms | ' + 
+                             r.aes_ctr_ms.toString().padStart(7) + 'ms | ' + 
+                             (typeof r.hmac_ms === 'number' ? r.hmac_ms.toString().padStart(7) + 'ms' : 'Streaming');
+                log('bench-log', line);
+            });
+            log('bench-log', '─'.repeat(40));
+
+        } catch (e) {
+            log('bench-log', '✗ Error: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = origText;
+        }
+    };
+})();
+</script>
+</body>
+</html>

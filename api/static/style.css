@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════
+   SecureTransfer Web — Light Greyscale Theme
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* ── Reset ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:         #fcfcfc;
+    --panel:      #f2f2f2;
+    --box:        #e8e8e8;
+    --border:     #e0e0e0;
+    --hover:      #cccccc;
+    --row:        #fafafa;
+    --side-sel:   #e5e5e5;
+
+    --txt:        #111111;
+    --dim:        #666666;
+    --accent:     #1a1a1a;
+    --accent2:    #333333;
+    --accent3:    #4d4d4d;
+    --success:    #2b2b2b;
+    --danger:     #000000;
+    --warning:    #555555;
+
+    --radius:     8px;
+    --radius-sm:  4px;
+    --font:       'JetBrains Mono', 'Courier New', monospace;
+    --transition: 180ms ease;
+}
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ──────────────────────────────────── */
+.header {
+    background: var(--box);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+}
+.header .badge {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    background: var(--border);
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ── Tab Navigation ──────────────────────────── */
+.tabs {
+    display: flex;
+    gap: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+}
+.tab {
+    padding: 14px 28px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    color: var(--dim);
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+    user-select: none;
+}
+.tab:hover {
+    color: var(--accent);
+    background: var(--box);
+}
+.tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* ── Main Content ────────────────────────────── */
+.main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+.panel-sub {
+    font-size: 11px;
+    color: var(--dim);
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+}
+
+/* ── Section Headers ─────────────────────────── */
+.section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-top: 28px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+}
+
+/* ── Drop Zone ───────────────────────────────── */
+.dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--row);
+    margin-bottom: 16px;
+}
+.dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: var(--box);
+}
+.dropzone .icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.6;
+}
+.dropzone .label {
+    font-size: 12px;
+    color: var(--dim);
+    letter-spacing: 0.5px;
+}
+.dropzone .filename {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 6px;
+    word-break: break-all;
+}
+.dropzone .filesize {
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 2px;
+}
+
+/* ── Inputs ──────────────────────────────────── */
+.input-group {
+    margin-bottom: 12px;
+}
+.input-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--dim);
+    margin-bottom: 4px;
+}
+.input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.input-row input[type="password"],
+.input-row input[type="text"] {
+    flex: 1;
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--row);
+    color: var(--txt);
+    outline: none;
+    transition: border-color var(--transition);
+}
+.input-row input:focus {
+    border-color: var(--accent);
+}
+.btn-toggle {
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 10px 14px;
+    background: var(--border);
+    color: var(--dim);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.btn-toggle:hover {
+    background: var(--hover);
+    color: var(--accent);
+}
+
+/* ── Password Strength ───────────────────────── */
+.strength-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.strength-bar .fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 300ms ease, background 300ms ease;
+    width: 0%;
+    background: var(--border);
+}
+.strength-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--dim);
+    margin-top: 3px;
+    font-weight: 600;
+}
+
+/* ── Confirm Password ────────────────────────── */
+.confirm-group { display: none; }
+.confirm-group.show { display: block; }
+
+/* ── Action Button ───────────────────────────── */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all var(--transition);
+}
+.btn-action:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.btn-action:active {
+    transform: translateY(0);
+}
+.btn-action:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ── Progress Bar ────────────────────────────── */
+.progress-container {
+    margin-top: 20px;
+    display: none;
+}
+.progress-container.active { display: block; }
+.progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.progress-bar .fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 200ms ease;
+}
+.progress-text {
+    font-size: 10px;
+    color: var(--dim);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* ── Log Output ──────────────────────────────── */
+.log-box {
+    background: var(--row);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+}
+.log-box.active { display: block; }
+.log-line {
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--dim);
+}
+.log-line.success { color: var(--success); font-weight: 600; }
+.log-line.error { color: var(--danger); font-weight: 600; }
+.log-line.info { color: var(--accent); }
+
+/* ── Info Box ────────────────────────────────── */
+.info-box {
+    background: var(--box);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+.info-box p {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.8;
+}
+
+/* ── Footer ──────────────────────────────────── */
+.footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+}
+
+/* ── Scrollbar ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--hover); }
+
+/* ── Animations ──────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.panel.active {
+    animation: fadeIn 250ms ease;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.processing { animation: pulse 1.5s infinite; }
