@@ -5,7 +5,7 @@ import os
 # Add parent directory to path since api is a subfolder
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from api.app import app
+from api.server import app
 
 def run_test():
     client = app.test_client()
